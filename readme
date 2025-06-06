@@ -1,0 +1,113 @@
+TASK 8: Java Maven Build on Jenkins in EC2
+Objective:
+To build a simple Java application using Apache Maven through a Jenkins Freestyle job on an Amazon EC2 Ubuntu instance, demonstrating a basic CI (Continuous Integration) pipeline.
+
+PART 1: Setup Java, Maven, and Git on EC2
+SSH into EC2 Instance
+Access your Ubuntu-based EC2 instance using:
+#ssh -i <your-key.pem> ubuntu@<EC2-Public-IP>
+
+Update the System
+Make sure your package index and installed packages are up to date:
+#sudo apt update && sudo apt upgrade -y
+
+Install Java (JDK 11)
+Install the required Java Development Kit for Jenkins and Maven to function:
+#sudo apt install openjdk-11-jdk -y
+java -version
+
+Install Maven
+Install Apache Maven to build Java projects:
+#sudo apt install maven -y
+#mvn -v
+
+Install Git 
+If pulling code from a Git repository is required:
+#sudo apt install git -y
+
+
+PART 2: Create a Java Maven Project
+Create Project Directory or push to the git repository
+#mkdir hello-java-maven && cd hello-java-maven
+#mkdir -p src/main/java
+
+Create HelloWorld.java
+File: src/main/java/HelloWorld.java
+java
+public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello, Jenkins + Maven!");
+    }
+}
+
+
+Create pom.xml
+File: pom.xml
+xml
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0
+         http://maven.apache.org/xsd/maven-4.0.0.xsd">
+  <modelVersion>4.0.0</modelVersion>
+  <groupId>com.example</groupId>
+  <artifactId>hello</artifactId>
+  <version>1.0</version>
+
+  <build>
+    <plugins>
+      <plugin>
+        <groupId>org.apache.maven.plugins</groupId>
+        <artifactId>maven-compiler-plugin</artifactId>
+        <version>3.8.1</version>
+        <configuration>
+          <source>1.8</source>
+          <target>1.8</target>
+        </configuration>
+      </plugin>
+    </plugins>
+  </build>
+</project>
+
+
+
+PART 3: Configure Jenkins Freestyle Project
+Start Jenkins
+Ensure Jenkins is running:
+#sudo systemctl start jenkins
+#sudo systemctl enable jenkins
+
+Access Jenkins Dashboard
+Open a browser and navigate to:
+#http://<EC2-Public-IP>:8080
+Retrieve the admin password:
+#sudo cat /var/lib/jenkins/secrets/initialAdminPassword
+Login, then complete the initial setup.
+
+Configure Maven in Jenkins
+Go to Manage Jenkins → Global Tool Configuration
+Under Maven, click Add Maven
+Name it: Maven-3
+Uncheck Install automatically (if already installed via OS), or check it and choose version 3.8.6
+
+Create Jenkins Freestyle Job
+Create a New Job
+Click New Item
+Enter project name: hello-java-build
+Choose Freestyle project → Click OK
+
+Configure Build Step
+Source Code Management: Select None (local code)
+Build Section:
+Click Add build step → Invoke top-level Maven targets
+Goals: clean package
+
+Run and Verify the Build
+Click Save
+Click Build Now
+Click on the build number in the sidebar
+
+Open Console Output
+Expected Output:
+You should see:
+BUILD SUCCESS
+This confirms that Jenkins successfully used Maven to compile and package the Java application.
